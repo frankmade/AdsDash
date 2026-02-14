@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AppUser {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One user can have many connected ad accounts
+  adAccounts AdAccount[]
+}
+
+model AdAccount {
+  id          String   @id @default(cuid())
+  userId      String
+  platform    String // "meta" | "google"
+  accountId   String
+  accountName String?
+  createdAt   DateTime @default(now())
+
+  user AppUser @relation(fields: [userId], references: [clerkId])
+
+  @@unique([platform, accountId])
+}
